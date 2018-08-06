@@ -315,25 +315,52 @@ function! s:processEmptyLine(setting)
 endfunction
 
 function! s:base64_encode(str)
-python << python_base64
+    if has('python3')
+python3 << python3_base64
+import string
+import base64
+import vim
+str = vim.eval("a:str")
+result = base64.b64encode(str.encode()).decode()
+vim.command("let l:result='%s'"% result)
+python3_base64
+    else
+python << python2_base64
 import string
 import base64
 import vim
 str = vim.eval("a:str")
 result = base64.b64encode(str)
 vim.command("let l:result='%s'"% result)
-python_base64
+python2_base64
+    endif
     return l:result
 endfunction
+
 function! s:base64_decode(str)
-python << python_base64
+    let str = a:str
+    while len(str) % 4 != 0
+        let str .= '='
+    endwhile
+    if has('python3')
+python3 << python3_base64
 import string
 import base64
 import vim
-str = vim.eval("a:str")
+str = vim.eval("str")
+result = base64.b64decode(str.encode()).decode()
+vim.command("let l:result='%s'"% result)
+python3_base64
+    else
+python << python2_base64
+import string
+import base64
+import vim
+str = vim.eval("str")
 result = base64.b64decode(str)
 vim.command("let l:result='%s'"% result)
-python_base64
+python2_base64
+    endif
     return l:result
 endfunction
 
