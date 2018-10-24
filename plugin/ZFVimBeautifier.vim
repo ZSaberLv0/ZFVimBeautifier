@@ -217,7 +217,7 @@ function! s:escape(iLine, escape)
     let t = substitute(t, '+', 'ZFVBPlus', 'g')
     let t = substitute(t, '/', 'ZFVBSlash', 'g')
     let t = substitute(t, '=', 'ZFVBEqual', 'g')
-    call setline(a:iLine, strpart(line, 0, pos) . s:escapeL . t . s:escapeR . strpart(line, len(str)))
+    call setline(a:iLine, strpart(line, 0, pos) . s:escapeL . t . s:escapeR . strpart(line, pos + len(str)))
 endfunction
 function! s:processEscape(setting)
     if len(a:setting['escape']) > 0
