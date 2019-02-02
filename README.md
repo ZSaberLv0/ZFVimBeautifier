@@ -2,6 +2,8 @@
 
 vim script to beautifier plain text or source code by regexp
 
+if you like my work, [check here](https://github.com/ZSaberLv0?utf8=%E2%9C%93&tab=repositories&q=ZFVim) for a list of my vim plugins
+
 
 # WARNING
 
