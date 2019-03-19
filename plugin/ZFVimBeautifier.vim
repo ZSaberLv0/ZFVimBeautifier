@@ -30,6 +30,14 @@ if !exists('g:ZFBeautifier_autoSetFiletype')
 endif
 
 function! ZFBeautifier(...)
+    try
+        call E2v(".")
+    catch
+        redraw!
+        echo '[ZFBeautifier] we require othree/eregex.vim'
+        return
+    endtry
+
     let searchSaved = @/
 
     if a:0 > 0
@@ -206,9 +214,11 @@ endfunction
 let s:escapeL = 'ZFVBtl'
 let s:escapeR = 'ZFVBtr'
 function! s:escape(iLine, escape)
+    let escape = E2v(a:escape)
+
     let line = getline(a:iLine)
-    let pos = match(line, a:escape)
-    let str = matchstr(line, a:escape)
+    let pos = match(line, escape)
+    let str = matchstr(line, escape)
     if pos <= 0
         return
     endif
@@ -243,7 +253,7 @@ function! s:processEscapeRestore(setting)
         let t = substitute(t, 'ZFVBSlash', '/', 'g')
         let t = substitute(t, 'ZFVBEqual', '=', 'g')
         let t = s:base64_decode(t)
-        call setline(iLine, strpart(line, 0, pos) . t . strpart(line, len(str)))
+        call setline(iLine, strpart(line, 0, pos) . t . strpart(line, pos + len(str)))
     endfor
 endfunction
 
