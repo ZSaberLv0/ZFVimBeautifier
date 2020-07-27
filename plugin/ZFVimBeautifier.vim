@@ -216,18 +216,27 @@ let s:escapeR = 'ZFVBtr'
 function! s:escape(iLine, escape)
     let escape = E2v(a:escape)
 
+    let offset = 0
     let line = getline(a:iLine)
-    let pos = match(line, escape)
-    let str = matchstr(line, escape)
-    if pos <= 0
-        return
-    endif
+    while 1
+        let pos = match(line, escape, offset)
+        if pos <= 0
+            if offset == 0
+                return
+            else
+                break
+            endif
+        endif
+        let str = matchstr(line, escape, offset)
+        let offset = pos + len(str)
 
-    let t = s:base64_encode(str)
-    let t = substitute(t, '+', 'ZFVBPlus', 'g')
-    let t = substitute(t, '/', 'ZFVBSlash', 'g')
-    let t = substitute(t, '=', 'ZFVBEqual', 'g')
-    call setline(a:iLine, strpart(line, 0, pos) . s:escapeL . t . s:escapeR . strpart(line, pos + len(str)))
+        let t = s:base64_encode(str)
+        let t = substitute(t, '+', 'ZFVBPlus', 'g')
+        let t = substitute(t, '/', 'ZFVBSlash', 'g')
+        let t = substitute(t, '=', 'ZFVBEqual', 'g')
+        let line = strpart(line, 0, pos) . s:escapeL . t . s:escapeR . strpart(line, pos + len(str))
+    endwhile
+    call setline(a:iLine, line)
 endfunction
 function! s:processEscape(setting)
     if len(a:setting['escape']) > 0
@@ -241,19 +250,21 @@ endfunction
 
 function! s:processEscapeRestore(setting)
     for iLine in range(1, line('$'))
-        let line = getline(iLine)
-        let pos = match(line, s:escapeL . '.*' . s:escapeR, 'g')
-        let str = matchstr(line, s:escapeL . '.*' . s:escapeR, 'g')
-        if pos <= 0
-            continue
-        endif
+        while 1
+            let line = getline(iLine)
+            let pos = match(line, s:escapeL . '.\{-}' . s:escapeR, 'g')
+            let str = matchstr(line, s:escapeL . '.\{-}' . s:escapeR, 'g')
+            if pos <= 0
+                break
+            endif
 
-        let t = strpart(str, len(s:escapeL), len(str) - len(s:escapeL) - len(s:escapeR))
-        let t = substitute(t, 'ZFVBPlus', '+', 'g')
-        let t = substitute(t, 'ZFVBSlash', '/', 'g')
-        let t = substitute(t, 'ZFVBEqual', '=', 'g')
-        let t = s:base64_decode(t)
-        call setline(iLine, strpart(line, 0, pos) . t . strpart(line, pos + len(str)))
+            let t = strpart(str, len(s:escapeL), len(str) - len(s:escapeL) - len(s:escapeR))
+            let t = substitute(t, 'ZFVBPlus', '+', 'g')
+            let t = substitute(t, 'ZFVBSlash', '/', 'g')
+            let t = substitute(t, 'ZFVBEqual', '=', 'g')
+            let t = s:base64_decode(t)
+            call setline(iLine, strpart(line, 0, pos) . t . strpart(line, pos + len(str)))
+        endwhile
     endfor
 endfunction
 
