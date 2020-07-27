@@ -220,7 +220,7 @@ function! s:escape(iLine, escape)
     let line = getline(a:iLine)
     while 1
         let pos = match(line, escape, offset)
-        if pos <= 0
+        if pos < 0
             if offset == 0
                 return
             else
