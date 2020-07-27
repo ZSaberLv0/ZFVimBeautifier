@@ -228,13 +228,18 @@ function! s:escape(iLine, escape)
             endif
         endif
         let str = matchstr(line, escape, offset)
-        let offset = pos + len(str)
 
         let t = s:base64_encode(str)
         let t = substitute(t, '+', 'ZFVBPlus', 'g')
         let t = substitute(t, '/', 'ZFVBSlash', 'g')
         let t = substitute(t, '=', 'ZFVBEqual', 'g')
         let line = strpart(line, 0, pos) . s:escapeL . t . s:escapeR . strpart(line, pos + len(str))
+
+        let offset = pos + len(s:escapeL) + len(t) + len(s:escapeR)
+        " \(\?=
+        if match(a:escape, '(?=') >= 0
+            let offset += 1
+        endif
     endwhile
     call setline(a:iLine, line)
 endfunction
